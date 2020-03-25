@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="js/chat.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			* {
+				margin: 0px;
+				padding: 0px;
+				box-sizing: border-box;
+			}
+			
+			h1 {
+				color: white;
+				text-align: center;
+			}
+			
+			canvas {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				top: 0px;
+				background-color: rgb(22, 34, 66);
+				z-index: -1;
+			}
+			
+			.left {
+				float: left;
+				width: 80px;
+				height: 650px;
+				color: red;
+				border-right: 1px solid darkcyan;
+				text-align: center;
+				line-height: 200px;
+			}
+			
+			.center {
+				position: relative;
+				float: left;
+				width: 420px;
+				height: 650px;
+				border: 1px solid darkcyan;
+			}
+			
+			.chatList {
+				width: 100%;
+				height: 500px;
+				overflow-y: scroll;
+			}
+			
+			.bottom {
+				position: absolute;
+				width: 100%;
+				height: 150px;
+				left: 0;
+				bottom: 0;
+				border: 1px solid darkcyan;
+				background: rgba(156, 100, 96, .9);
+			}
+			
+			.bottom textarea {
+				width: 70%;
+				height: 100%;
+				font-size: 18px;
+				;
+				vertical-align: middle;
+				border: 1px solid red;
+				background: ;
+			}
+			
+			.bottom input {
+				width: 80px;
+				height: 40px;
+				margin-left: 30px;
+			}
+			
+			.box {
+				width: 500px;
+				height: 650px;
+				margin: 30px auto;
+				/*border-radius: 30px 0 0 30px;*/
+				background-color: rgba(156, 100, 96, .9);
+			}
+			
+			.btn {
+				position: absolute;
+				top: 50px;
+				right: 25px;
+				width: 200px;
+				text-align: center;
+				line-height: 100%;
+				padding: 0.3em;
+				font: 16px Arial, sans-serif bold;
+				font-style: normal;
+				text-decoration: none;
+				vertical-align: text-bottom;
+				zoom: 1;
+				outline: none;
+				font-size-adjust: none;
+				font-stretch: normal;
+				border-radius: 10px;
+				box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+				text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
+				color: #fefee9;
+				border: 0.2px solid #2299ff;
+				background-repeat: repeat;
+				background-size: auto;
+				background-origin: padding-box;
+				background-clip: padding-box;
+				background-color: #3399ff;
+				background: linear-gradient(to bottom, #eeeff9 0%, #3399ff 100%);
+			}
+			
+			.btn:hover {
+				background: #268DFF;
+			}
+		</style>
+	</head>
+
+	<body onload="loadTime()">
+		<canvas id="myCanvas"></canvas>
+
+		<script type="text/javascript">
+			// 获取视口的宽
+			var width = document.documentElement.clientWidth;
+			// 获取视口的高
+			var height = document.documentElement.clientHeight;
+			// 获取canvas
+			var canvas = document.getElementById("myCanvas");
+			// 获取画笔
+			var ctx = canvas.getContext("2d");
+			// 赋值canvas的宽
+			canvas.width = width;
+			// 赋值canvas的高
+			canvas.height = height;
+
+			// 改变填充色
+			ctx.fillStyle = "white";
+			// 改变线条颜色
+			ctx.strokeStyle = "rgba(197, 194, 19, .4)";
+			// 改变线宽
+			ctx.lineWidth = ".3";
+
+			// 定义Star类
+			function Star(ctx, x, y, r) {
+				this.ctx = ctx;
+				this.x = x;
+				this.y = y;
+				this.r = r;
+				this.x_speed = (parseInt(Math.random() * 3) + 1) * Math.pow(-1, parseInt(Math.random() * 10) + 1) / 5;
+				this.y_speed = (parseInt(Math.random() * 3) + 1) * Math.pow(-1, parseInt(Math.random() * 10) + 1) / 5;
+			}
+
+			// 方法要写在原型上
+			// 移动方法
+			Star.prototype.move = function() {
+				this.x -= this.x_speed;
+				this.y -= this.y_speed;
+			}
+
+			// 转向X方法
+			Star.prototype.changeX = function() {
+				this.x_speed = -this.x_speed;
+			}
+			// 转向Y方法
+			Star.prototype.changeY = function() {
+				this.y_speed = -this.y_speed;
+			}
+
+			// 渲染方法
+			Star.prototype.render = function() {
+				// 开启路径
+				this.ctx.beginPath();
+				// 绘制圆
+				this.ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+				// 闭合路径
+				this.ctx.closePath();
+				// 填充
+				this.ctx.fill();
+			}
+
+			// 定义数组 用于存放每一个星星对象
+			var arr = [];
+			// 初始化星星对象
+			// var star = new Star(ctx, Math.random() * width, Math.random() * height, 2);
+			// star.render();
+
+			for(var i = 0; i < 200; i++) {
+				arr.push(new Star(ctx, Math.random() * width, Math.random() * height, 1));
+			}
+
+			// 创建鼠标星星对象
+			var mouse_star = new Star(ctx, 0, 0, 2);
+			document.onmousemove = function(e) {
+				// 获取鼠标的位置
+				var x = e.clientX;
+				var y = e.clientY;
+				// 赋值mouse_star对象中的x 和 y值
+				mouse_star.x = x;
+				mouse_star.y = y;
+
+			}
+
+			// 开启定时器
+			var timer = setInterval(function() {
+				// 清屏
+				ctx.clearRect(0, 0, width, height);
+				// 渲染星星对象的方法
+				mouse_star.render();
+
+				arr.forEach(function(value, index) {
+					// 移动
+					value.move();
+					// 判断边界
+					if(value.x < 0 || value.x > width) {
+						value.changeX();
+					}
+
+					if(value.y < 0 || value.y > height) {
+						value.changeY();
+					}
+					// 渲染
+					value.render();
+				});
+
+				// 循环判断
+				arr.forEach(function(value, index) {
+					// value表示每一个星星，我们应该拿着这个星星与其它所有星星作比较
+					for(var i = index + 1; i < arr.length; i++) {
+						if(Math.abs(value.x - arr[i].x) < 70 && Math.abs(value.y - arr[i].y) < 70) {
+							// 连线
+							line(value.x, value.y, arr[i].x, arr[i].y);
+						}
+					}
+
+					// 判断星星与其它所有星星之间的关系
+					if(Math.abs(value.x - mouse_star.x) < 150 && Math.abs(value.y - mouse_star.y) < 150) {
+						// 连线
+						line(value.x, value.y, mouse_star.x, mouse_star.y);
+					}
+				})
+			}, 20);
+
+			// 给document添加点击事件
+			// 当点击的时候出现多个星星
+			document.onmousedown = function(e) {
+				for(var i = 0; i < 5; i++) {
+					arr.push(new Star(ctx, e.clientX, e.clientY, 1));
+					arr.shift();
+				}
+			}
+
+			// 封装函数，传递两个点，绘制两个点之间的线段
+			function line(x1, y1, x2, y2) {
+				// 开启路径
+				ctx.beginPath();
+				// 移动画笔到某个位置
+				ctx.moveTo(x1, y1);
+				// 绘制路径
+				ctx.lineTo(x2, y2);
+				// 关闭路径
+				ctx.closePath();
+				// 描边
+				ctx.stroke();
+			}
+		</script>
+		<h1>欢迎来到聊天室</h1>
+
+		<div class="box">
+			<div class="left" id="left">
+
+			</div>
+			<div class="center" id="center">
+				<div class="chatList" id="chatList">
+
+				</div>
+				<div class="bottom">
+					<textarea autofocus="autofocus" id="content" name="content" placeholder="欢迎来到聊天室，发送“开心”或“尴尬”将自动替换为对应表情，本聊天室有敏感词检测功能，当发送aa或bb或cc或dd，将自动替换为***"></textarea>
+
+					<input type="button" name="send" id="send" value="点击发送" class="btn" onclick="sendMessage()" />
+				</div>
+			</div>
+		</div>
+
+	</body>
+
+</html>
