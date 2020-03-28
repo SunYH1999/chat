@@ -123,6 +123,9 @@
 		<canvas id="myCanvas"></canvas>
 
 		<script type="text/javascript">
+			window.onresize = function() {
+				location.reload();
+			}
 			// 获取视口的宽
 			var width = document.documentElement.clientWidth;
 			// 获取视口的高
